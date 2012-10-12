@@ -366,11 +366,8 @@ class Slop
   #
   # Returns the banner followed by available option help strings.
   def to_s
-    heads  = options.reject(&:tail?)
-    tails  = (options - heads)
-    opts = (heads + tails).select(&:help).map(&:to_s)
-    optstr = opts.each_with_index.map { |o, i|
-      (str = @separators[i + 1]) ? [o, str].join("\n") : o
+    optstr = options.select(&:help).each_with_index.map { |opt, i|
+      (sep = @separators[i + 1]) ? "#{opt}\n#{sep}" : opt
     }.join("\n")
 
     banner = config[:banner]
