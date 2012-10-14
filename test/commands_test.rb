@@ -99,17 +99,35 @@ class CommandsTest < TestCase
     assert_equal %w( file1 file2 ), @commands.arguments
   end
 
-  test "new with block scope" do
+  test "context and return value of constructor block"  do
     peep = nil
     ret = Slop::Commands.new { peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     peep = nil
     ret = Slop::Commands.new { |a| peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     assert_raises ArgumentError do
       Slop::Commands.new { |a, b| }
+    end
+  end
+
+  test "context and return value of constructor block with falthy flag"  do
+    peep = nil
+    ret = Slop::Commands.new(:switch_constructor_context => false) { peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    peep = nil
+    ret = Slop::Commands.new(:switch_constructor_context => false) { |a| peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    assert_raises ArgumentError do
+      Slop::Commands.new(:switch_constructor_context => false) { |a, b| }
     end
   end
 

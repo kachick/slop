@@ -1,8 +1,10 @@
 require 'slop/option'
 require 'slop/commands'
+require 'slop/utils'
 
 class Slop
   include Enumerable
+  include Utils
 
   VERSION = '3.3.3'
 
@@ -34,7 +36,8 @@ class Slop
     :arguments => false,
     :optional_arguments => false,
     :multiple_switches => true,
-    :longest_flag => 0
+    :longest_flag => 0,
+    :switch_constructor_context => true
   }
 
   class << self
@@ -130,17 +133,7 @@ class Slop
     @callbacks = {}
     @separators = {}
 
-    if block_given?
-       case block.arity.abs
-       when 0
-         instance_exec(&block)
-       when 1
-         instance_exec(self, &block)
-       else
-         raise ArgumentError,
-           "wrong number of block arguments (#{block.arity} for #{0..1})"
-       end
-    end
+    exec_constructor_block(&block) if block_given?
 
     if config[:help]
       on('-h', '--help', 'Display this help message.', :tail => true) do

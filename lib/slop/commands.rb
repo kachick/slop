@@ -1,6 +1,13 @@
+require 'slop/utils'
+
 class Slop
   class Commands
     include Enumerable
+    include Utils
+
+    DEFAULT_OPTIONS = {
+      :switch_constructor_context => true
+    }
 
     attr_reader :config, :commands, :arguments
     attr_writer :banner
@@ -34,22 +41,12 @@ class Slop
     #   commands.parse
     #
     def initialize(config = {}, &block)
-      @config = config
+      @config = DEFAULT_OPTIONS.merge config
       @commands = {}
       @banner = nil
       @triggered_command = nil
 
-      if block_given?
-        case block.arity.abs
-        when 0
-          instance_exec(&block)
-        when 1
-          instance_exec(self, &block)
-        else
-          raise ArgumentError,
-            "wrong number of block arguments (#{block.arity} for #{0..1})"
-        end
-      end
+      exec_constructor_block(&block) if block_given?
     end
 
     # Optionally set the banner for this command help output.

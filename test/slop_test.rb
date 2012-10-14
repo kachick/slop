@@ -352,14 +352,16 @@ class SlopTest < TestCase
     assert_equal %w' baz hello ', args
   end
 
-  test "return value of constructors, with block scope" do
+  test "context and return value of constructor block" do
     peep = nil
     ret = Slop.new { peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     peep = nil
     ret = Slop.new { |a| peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     assert_raises ArgumentError do
       Slop.new { |a, b| }
@@ -368,13 +370,45 @@ class SlopTest < TestCase
     peep = nil
     ret = Slop.parse([]) { peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     peep = nil
     ret = Slop.parse([]) { |a| peep = self }
     assert_same ret, peep
+    assert !equal?(peep)
 
     assert_raises ArgumentError do
       Slop.parse([]) { |a, b| }
+    end
+  end
+
+  test "context and return value of constructor block with falthy flag" do
+    peep = nil
+    ret = Slop.new(:switch_constructor_context => false) { peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    peep = nil
+    ret = Slop.new(:switch_constructor_context => false) { |a| peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    assert_raises ArgumentError do
+      Slop.new(:switch_constructor_context => false) { |a, b| }
+    end
+
+    peep = nil
+    ret = Slop.parse([], :switch_constructor_context => false) { peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    peep = nil
+    ret = Slop.parse([], :switch_constructor_context => false) { |a| peep = self }
+    assert !peep.equal?(ret)
+    assert_same peep, self
+
+    assert_raises ArgumentError do
+      Slop.parse([], :switch_constructor_context => false) { |a, b| }
     end
   end
 
