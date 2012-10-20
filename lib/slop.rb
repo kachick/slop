@@ -253,7 +253,10 @@ class Slop
 
   # Enumerable interface. Yields each Slop::Option.
   def each(&block)
+    return to_enum(__callee__) unless block_given?
+
     options.each(&block)
+    self
   end
 
   # Check for an options presence.
