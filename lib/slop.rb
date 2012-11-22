@@ -266,7 +266,7 @@ class Slop
   #
   # Returns true if all of the keys are present in the parsed arguments.
   def present?(*keys)
-    keys.all? { |key| (opt = fetch_option(key)) && opt.count > 0 }
+    keys.all? { |key| present_option? key }
   end
 
   # Override this method so we can check if an option? method exists.
@@ -275,7 +275,7 @@ class Slop
   def respond_to?(method, include_private = false)
     method = method.to_s
     if method.end_with?('?')
-      options.any? { |o| o.key == method.chop }
+      respond_to_predicate?(method.chop)
     else
       super
     end
@@ -374,11 +374,24 @@ class Slop
   def method_missing(method, *args, &block)
     meth = method.to_s
     if meth.end_with?('?')
-      meth.chop!
-      present?(meth) || present?(meth.gsub('_', '-'))
+      respond_to_predicate?(meth)
     else
       super
     end
+  end
+
+  def respond_to_predicate?(method)
+    meth = method.to_s
+    if meth.end_with?('?')
+      meth.chop!
+      present_option?(meth) || present_option?(meth.gsub('_', '-'))
+    else
+      false
+    end
+  end
+
+  def present_option?(key)
+    (opts = fetch_option(key)) && opts.count > 0
   end
 
   # Process a list item, figure out if it's an option, execute any
