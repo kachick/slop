@@ -365,7 +365,7 @@ class Slop
   #
   # Examples:
   #
-  #   opts.parse %( --verbose )
+  #   opts.parse %w( --verbose )
   #   opts.verbose? #=> true
   #   opts.other?   #=> false
   #
