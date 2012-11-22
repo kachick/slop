@@ -273,6 +273,13 @@ class Slop
   #
   # Returns true if this option key exists in our list of options.
   def respond_to?(method, include_private = false)
+    respond_to_missing?(method, include_private) || super
+  end
+
+  # Override this method so we can check if an option? method exists.
+  #
+  # Returns true if this option key exists in our list of options.
+  def respond_to_missing?(method, include_private = false)
     method = method.to_s
     if method.end_with?('?')
       respond_to_predicate?(method.chop)
